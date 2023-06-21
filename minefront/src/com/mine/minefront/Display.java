@@ -1,6 +1,7 @@
 package com.mine.minefront;
 
 import java.awt.Canvas;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
@@ -15,16 +16,24 @@ public class Display extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
-	public static final String Title = "Minefront Pre-Alpha 0.01";
+	public static final String Title = "Minefront Pre-Alpha 0.02";
 
 	private Thread thread;
 	private boolean running = false;
 
 	private Screen screen;
 	private BufferedImage img;
+	
+	private Game game;
 	private int[] pixels;
 
 	public Display() {
+		Dimension size = new Dimension(WIDTH, HEIGHT);
+		setPreferredSize(size);
+		setMinimumSize(size);
+		setMaximumSize(size);
+	
+		game = new Game();
 		screen = new Screen(WIDTH, HEIGHT);
 		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
@@ -88,7 +97,7 @@ public class Display extends Canvas implements Runnable {
 	}
 
 	private void tick() {
-
+		game.tick();
 	}
 
 	private void render() {
@@ -98,7 +107,7 @@ public class Display extends Canvas implements Runnable {
 			return;
 		}
 
-		screen.render();
+		screen.render(game);
 
 		for (int i = 0; i < WIDTH * HEIGHT; ++i) {
 			pixels[i] = screen.pixels[i];
@@ -119,9 +128,9 @@ public class Display extends Canvas implements Runnable {
 		frame.pack(); // 根据窗口中的组件自动调整窗口的大小
 		frame.setTitle(Title);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 设置窗口的关闭操作
-		frame.setSize(WIDTH, HEIGHT);
+		//frame.setSize(WIDTH, HEIGHT);
 		frame.setLocationRelativeTo(null); // 根据窗口中的组件自动调整窗口的大小
-		frame.setResizable(true);
+		frame.setResizable(false);
 		frame.setVisible(true);
 
 		System.out.println("Running....!");
