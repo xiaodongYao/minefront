@@ -1,4 +1,4 @@
-package com.mine.minefront.Graphics;
+package com.mine.minefront.graphics;
 
 import java.util.Random;
 
@@ -14,27 +14,20 @@ public class Screen extends Render {
 		Random random = new Random();
 		test = new Render(256, 256);
 		render = new Render3D(width, height);
-		for (int i = 0; i < 256 * 256; ++i) {
+		for (int i = 0; i < test.width * test.height; i++) {
 			test.pixels[i] = random.nextInt() * (random.nextInt(5) / 4);
 		}
-
 	}
 
 	public void render(Game game) {
-		for (int i = 0; i < width * height; ++i) {
+		// 相当于清除上一次的东西，清空
+		for (int i = 0; i < width * height; i++) {
 			pixels[i] = 0;
 		}
 
-//		for (int i = 0; i < 50; ++i) {
-//
-//			int animOne = (int) (Math.sin((game.time + i * 2) % 1000.0 / 100) * 100);
-//			int animTwo = (int) (Math.cos((game.time + i * 2) % 1000.0 / 100) * 100);
-//
-//			// Draw(test, (width - 256) / 2 + animOne, (height - 256) / 2 - animTwo);
-//
-//		}
-		render.floor();
-		Draw(render, 0, 0);
-
+		render.floor(game);
+		render.renderDistanceLimiter();
+		draw(render, 0, 0);
 	}
+
 }

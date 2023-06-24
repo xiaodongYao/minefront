@@ -1,140 +1,180 @@
 package com.mine.minefront;
 
 import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
-import com.mine.minefront.Graphics.Screen;
+import com.mine.minefront.Input.Controller;
+import com.mine.minefront.Input.InputHandler;
+import com.mine.minefront.graphics.Screen;
 
-public class Display extends Canvas implements Runnable {
-
-	private static final long serialVersionUID = 1L;
-	public static final int WIDTH = 1280;
-	public static final int HEIGHT = 720;
-	public static final String Title = "Minefront Pre-Alpha 0.02";
-
-	private Thread thread;
-	private boolean running = false;
-
-	private Screen screen;
-	private BufferedImage img;
+public class Display extends Canvas implements Runnable  {
 	
-	private Game game;
-	private int[] pixels;
+    public static final int WIDTH = 1280;
+    public static final int HEIGHT = 720;
+    public static final String TITLE = "MineFront Pre-Alpha 0.01";
 
-	public Display() {
+    private Thread thread;
+    private boolean running = false;
+    private Screen screen;
+    private Game game;
+	private InputHandler input;
+
+    private BufferedImage img;
+    private int[] pixels;
+
+	private int newX = 0;
+	private int oldX = 0;
+
+	private int fps;
+    public Display() {
 		Dimension size = new Dimension(WIDTH, HEIGHT);
 		setPreferredSize(size);
 		setMinimumSize(size);
 		setMaximumSize(size);
-	
-		game = new Game();
-		screen = new Screen(WIDTH, HEIGHT);
-		img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-		pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
-	}
+        screen = new Screen(WIDTH, HEIGHT);
+        game = new Game();
+        img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+        pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+		input = new InputHandler();
 
-	private void start() {
-		if (running)
-			return;
+		addKeyListener(input);
+		addFocusListener(input);
+		addMouseListener(input);
+		addMouseMotionListener(input);
+    }
 
-		running = true;
-		thread = new Thread(this);
-		thread.start();
-		System.out.println("working");
-	}
+    private void start() {
+        if (running)
+            return;
+        running = true;
+        thread = new Thread(this);
+        thread.start();
 
-	private void stop() {
-		if (!running)
-			return;
+        System.out.println("working....");
+    }
 
-		running = false;
-		try {
-			thread.join(); // 当前线程阻塞，等待thread线程完成，main线程再结束
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-	}
+    private void stop() {
+        if (!running)
+            return;
+        running = false;
+        try {
+            thread.join();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+    }
 
-	public void run() {
-		int frames = 0;
-		double unprocessedSeconds = 0;
-		long previousTime = System.nanoTime(); // 纳秒时间
-		double secondsPerTick = 1 / 60.0;
-		int tickCount = 0;
-		boolean ticked = false;
-		while (running) {
-			long currentTime = System.nanoTime();
-			long passedTime = currentTime - previousTime; // 经过时间
-			previousTime = currentTime; // 重置时间
-			unprocessedSeconds += passedTime / 1000000000.0;
+    @Override
+    public void run() {
+        int frames = 0;
+        double unprocessedSeconds = 0; //尚未处理的秒数
+        long previousTime = System.nanoTime();
+        double secondsPerTick = 1 / 60.0;
+        int tickCount = 0;
+        boolean ticked = false;
+        while (running) {
+            long currentTime = System.nanoTime();
+            long passedTime = currentTime - previousTime;
+            previousTime = currentTime; //更新当前时间
+            unprocessedSeconds += passedTime / 1000000000.0;
 
-			while (unprocessedSeconds > secondsPerTick) {
-				tick();
-				unprocessedSeconds -= secondsPerTick;
-				ticked = true;
-				tickCount++;
-				if (tickCount % 60 == 0) {
-					System.out.println(frames + "fps");
-					previousTime += 1000;
-					frames = 0;
-				}
+            while (unprocessedSeconds > secondsPerTick) {
+                tick();
+                unprocessedSeconds -= secondsPerTick;
+                ticked = true;
+                tickCount++;
+                if (tickCount % 60 == 0) {
+					// System.out.println(frames + "fps");
+					fps = frames;
+                    previousTime += 1000;
+                    frames = 0;
+                }
+            }
+            if (ticked) {
+                render(); //渲染呈现
+                frames++;
+            }
+            render();
+            frames++;
+
+			newX = InputHandler.MouseX;
+			if (newX > oldX) {
+				Controller.turnRight = true;
 			}
-			if (ticked) {
-				render();
-				frames++;
-				//continue;
+			if (newX < oldX) {
+				Controller.turnLeft = true;
 			}
-			render();
-			frames++;
-		}
-	}
+			if (newX == oldX) {
+				Controller.turnRight = false;
+				Controller.turnLeft = false;
+			}
+			oldX = newX;
+        }
 
-	private void tick() {
-		game.tick();
-	}
+    }
 
-	private void render() {
-		BufferStrategy bs = this.getBufferStrategy();
-		if (bs == null) {
-			createBufferStrategy(3);
-			return;
-		}
+    private void tick() {
+		game.tick(input.key);
+    }
 
-		screen.render(game);
+    private void render() {
+        BufferStrategy bs = this.getBufferStrategy();
+        if (bs == null) {
+            createBufferStrategy(3);
+            return;
+        }
 
-		for (int i = 0; i < WIDTH * HEIGHT; ++i) {
-			pixels[i] = screen.pixels[i];
-		}
+        screen.render(game);
+        for (int i = 0; i < WIDTH * HEIGHT; i++) {
+            pixels[i] = screen.pixels[i];
+        }
 
-		Graphics g = bs.getDrawGraphics();
-		g.drawImage(img, 0, 0, WIDTH, HEIGHT, null);
-		g.dispose();
-		bs.show();
+        Graphics g = bs.getDrawGraphics();
+        g.drawImage(img, 0, 0, WIDTH, HEIGHT, null);
+		// 字体
+		g.setFont(new Font("Consola", 0, 50));
+		g.setColor(Color.WHITE);
+		g.drawString(fps + " FPS", 20, 50);
 
-	}
+        g.dispose();
+        bs.show();
+    }
 
-	public static void main(String[] args) {
 
-		Display game = new Display();
-		JFrame frame = new JFrame();
-		frame.add(game);
-		frame.pack(); // 根据窗口中的组件自动调整窗口的大小
-		frame.setTitle(Title);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 设置窗口的关闭操作
-		//frame.setSize(WIDTH, HEIGHT);
-		frame.setLocationRelativeTo(null); // 根据窗口中的组件自动调整窗口的大小
-		frame.setResizable(false);
-		frame.setVisible(true);
+    public static void main(String[] args) {
+		BufferedImage cursor = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+		Cursor blank = Toolkit.getDefaultToolkit().createCustomCursor(cursor, new Point(0, 0), "blank");
 
-		System.out.println("Running....!");
+        Display game = new Display();
+        JFrame frame = new JFrame();
 
-		game.start();
-	}
+        frame.add(game);
+        frame.pack();
+
+		frame.getContentPane().setCursor(blank);
+
+        frame.setTitle(TITLE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //界面关闭,程序也关闭
+
+        //frame.setSize(WIDTH, HEIGHT);
+        frame.setLocationRelativeTo(null); //居中打开
+        frame.setResizable(true);  //调整大小
+        frame.setVisible(true);  //可见性
+
+        game.start();
+        System.out.println("Running....");
+    }
+
 }
