@@ -14,15 +14,17 @@ import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
+import com.mine.minefront.Graphics.Screen;
 import com.mine.minefront.Input.Controller;
 import com.mine.minefront.Input.InputHandler;
-import com.mine.minefront.graphics.Screen;
 
 public class Display extends Canvas implements Runnable  {
 	
-    public static final int WIDTH = 1280;
-    public static final int HEIGHT = 720;
-    public static final String TITLE = "MineFront Pre-Alpha 0.01";
+
+	private static final long serialVersionUID = 1L;
+	public static final int WIDTH = 800;
+    public static final int HEIGHT = 600;
+	public static final String TITLE = "MineFront Pre-Alpha 0.02";
 
     private Thread thread;
     private boolean running = false;
@@ -54,7 +56,7 @@ public class Display extends Canvas implements Runnable  {
 		addMouseMotionListener(input);
     }
 
-    private void start() {
+	public synchronized void start() {
         if (running)
             return;
         running = true;
@@ -64,7 +66,7 @@ public class Display extends Canvas implements Runnable  {
         System.out.println("working....");
     }
 
-    private void stop() {
+	public synchronized void stop() {
         if (!running)
             return;
         running = false;
@@ -89,7 +91,7 @@ public class Display extends Canvas implements Runnable  {
             long passedTime = currentTime - previousTime;
             previousTime = currentTime; //更新当前时间
             unprocessedSeconds += passedTime / 1000000000.0;
-
+            requestFocus();
             while (unprocessedSeconds > secondsPerTick) {
                 tick();
                 unprocessedSeconds -= secondsPerTick;
@@ -163,7 +165,7 @@ public class Display extends Canvas implements Runnable  {
         frame.add(game);
         frame.pack();
 
-		frame.getContentPane().setCursor(blank);
+		// frame.getContentPane().setCursor(blank);
 
         frame.setTitle(TITLE);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //界面关闭,程序也关闭

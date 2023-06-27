@@ -10,8 +10,7 @@ public class Controller {
 	public static boolean crouchWalk = false;
 	public static boolean runWalk = false;
 
-	public void tick(boolean forward, boolean back, boolean left, boolean right, boolean jump, boolean crouch,
-			boolean run) {
+	public void tick(boolean forward, boolean back, boolean left, boolean right, boolean jump, boolean crouch, boolean run) {
 		double rotationSpeed = 0.025;
 		double walkSpeed = 0.5;
 		double jumpHeight = 0.5;
@@ -41,13 +40,23 @@ public class Controller {
 		}
 
 		if (turnLeft) {
-			rotationa -= rotationSpeed;
-			walk = true;
+			if (InputHandler.MouseButton == 3) {
+
+			} else {
+				rotationa -= rotationSpeed;
+				walk = true;
+			}
+
 		}
 
 		if (turnRight) {
-			rotationa += rotationSpeed;
-			walk = true;
+			if (InputHandler.MouseButton == 3) {
+
+			} else {
+				rotationa += rotationSpeed;
+				walk = true;
+			}
+
 		}
 
 		if (jump) {
@@ -58,37 +67,40 @@ public class Controller {
 			y -= crouchHeight;
 			run = false;
 			crouchWalk = true;
-		} else {
-			crouchWalk = false;
+			walkSpeed = 0.2;
 		}
-
 		if (run) {
-			walkSpeed=1;
+			walkSpeed = 1;
 			walk = true;
 			runWalk = true;
-		} else {
-			runWalk = false;
 		}
 
 		if (!forward && !back && !left && !right) {
 			walk = false;
 		}
 
-		xa += (xMove * Math.cos(rotation) + zMove * Math.sin(rotation) * walkSpeed);
-		za += (zMove * Math.cos(rotation) - xMove * Math.sin(rotation) * walkSpeed);
+		if (!crouch) {
+			crouchWalk = false;
+		}
+		if (!run) {
+			runWalk = false;
+		}
+
+		xa += (xMove * Math.cos(rotation) + zMove * Math.sin(rotation)) * walkSpeed;
+		za += (zMove * Math.cos(rotation) - xMove * Math.sin(rotation)) * walkSpeed;
 
 
 		x += xa;
-		z += za;
 		y *= 0.9;
+		z += za;
 
 		xa *= 0.1;
 		za *= 0.1;
 
-		if (turnLeft || turnRight) {
+		 if (turnLeft || turnRight) {
 			rotation += rotationa;
 			rotationa *= 0.4;
-		}
+		 }
 
 	}
 }

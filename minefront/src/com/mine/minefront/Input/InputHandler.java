@@ -18,6 +18,7 @@ public class InputHandler implements KeyListener, FocusListener, MouseListener, 
 
 	public static int MouseX;
 	public static int MouseY;
+	public static int MouseButton;
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -33,7 +34,7 @@ public class InputHandler implements KeyListener, FocusListener, MouseListener, 
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
+		MouseButton = e.getButton();
 
 	}
 

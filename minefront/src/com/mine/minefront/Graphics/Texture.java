@@ -1,4 +1,4 @@
-package com.mine.minefront.graphics;
+package com.mine.minefront.Graphics;
 
 import java.awt.image.BufferedImage;
 
