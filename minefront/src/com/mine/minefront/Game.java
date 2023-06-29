@@ -3,12 +3,16 @@ package com.mine.minefront;
 import java.awt.event.KeyEvent;
 
 import com.mine.minefront.Input.Controller;
+import com.mine.minefront.level.Level;
 
 public class Game {
 	public int time;
 	public Controller controls;
+	public Level level;
+
 	public Game() {
 		controls = new Controller();
+		level = new Level(20, 20);
 	}
 
 	public void tick(boolean[] key)

@@ -2,19 +2,15 @@ package com.mine.minefront;
 
 import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-import javax.swing.JFrame;
-
 import com.mine.minefront.Graphics.Screen;
+import com.mine.minefront.Gui.Launcher;
 import com.mine.minefront.Input.Controller;
 import com.mine.minefront.Input.InputHandler;
 
@@ -24,6 +20,10 @@ public class Display extends Canvas implements Runnable  {
 	private static final long serialVersionUID = 1L;
 	public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
+
+	public int width = 800;
+	public int height = 600;
+
 	public static final String TITLE = "MineFront Pre-Alpha 0.02";
 
     private Thread thread;
@@ -39,14 +39,19 @@ public class Display extends Canvas implements Runnable  {
 	private int oldX = 0;
 
 	private int fps;
+
+	public static int MouseSpeed = 0;
+
+	public static int selection = 0;
+
     public Display() {
-		Dimension size = new Dimension(WIDTH, HEIGHT);
+		Dimension size = new Dimension(GetGameWidth(), GetGameHeight());
 		setPreferredSize(size);
 		setMinimumSize(size);
 		setMaximumSize(size);
-        screen = new Screen(WIDTH, HEIGHT);
+		screen = new Screen(GetGameWidth(), GetGameHeight());
         game = new Game();
-        img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		img = new BufferedImage(GetGameWidth(), GetGameHeight(), BufferedImage.TYPE_INT_RGB);
         pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
 		input = new InputHandler();
 
@@ -55,6 +60,41 @@ public class Display extends Canvas implements Runnable  {
 		addMouseListener(input);
 		addMouseMotionListener(input);
     }
+
+	public int GetGameWidth() {
+		switch(selection)
+		{
+		case 0:
+			width=640;
+			break;
+		case 1:
+		case -1:
+			width=800;
+			break; 
+		case 2:
+			width=1024;
+			break;
+		}
+		
+		return width;
+	}
+
+	public int GetGameHeight() {
+		switch (selection) {
+		case 0:
+			height = 480;
+			break;
+		case 1:
+		case -1:
+			height = 600;
+			break;
+		case 2:
+			height = 768;
+			break;
+		}
+
+		return height;
+	}
 
 	public synchronized void start() {
         if (running)
@@ -74,7 +114,7 @@ public class Display extends Canvas implements Runnable  {
             thread.join();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
+			System.exit(1);
         }
     }
 
@@ -122,6 +162,7 @@ public class Display extends Canvas implements Runnable  {
 				Controller.turnRight = false;
 				Controller.turnLeft = false;
 			}
+			MouseSpeed = Math.abs(newX - oldX);
 			oldX = newX;
         }
 
@@ -139,12 +180,12 @@ public class Display extends Canvas implements Runnable  {
         }
 
         screen.render(game);
-        for (int i = 0; i < WIDTH * HEIGHT; i++) {
+		for (int i = 0; i < GetGameWidth() * GetGameHeight(); i++) {
             pixels[i] = screen.pixels[i];
         }
 
         Graphics g = bs.getDrawGraphics();
-        g.drawImage(img, 0, 0, WIDTH, HEIGHT, null);
+		g.drawImage(img, 0, 0, GetGameWidth(), GetGameHeight(), null);
 		// 字体
 		g.setFont(new Font("Consola", 0, 50));
 		g.setColor(Color.WHITE);
@@ -156,27 +197,7 @@ public class Display extends Canvas implements Runnable  {
 
 
     public static void main(String[] args) {
-		BufferedImage cursor = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-		Cursor blank = Toolkit.getDefaultToolkit().createCustomCursor(cursor, new Point(0, 0), "blank");
-
-        Display game = new Display();
-        JFrame frame = new JFrame();
-
-        frame.add(game);
-        frame.pack();
-
-		// frame.getContentPane().setCursor(blank);
-
-        frame.setTitle(TITLE);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //界面关闭,程序也关闭
-
-        //frame.setSize(WIDTH, HEIGHT);
-        frame.setLocationRelativeTo(null); //居中打开
-        frame.setResizable(true);  //调整大小
-        frame.setVisible(true);  //可见性
-
-        game.start();
-        System.out.println("Running....");
+		new Launcher(0);
     }
 
 }
