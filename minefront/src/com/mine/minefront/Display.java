@@ -8,6 +8,9 @@ import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import com.mine.minefront.Graphics.Screen;
 import com.mine.minefront.Gui.Launcher;
@@ -21,8 +24,8 @@ public class Display extends Canvas implements Runnable  {
 	public static final int WIDTH = 800;
     public static final int HEIGHT = 600;
 
-	public int width = 800;
-	public int height = 600;
+	public static int width = 800;
+	public static int height = 600;
 
 	public static final String TITLE = "MineFront Pre-Alpha 0.02";
 
@@ -62,37 +65,10 @@ public class Display extends Canvas implements Runnable  {
     }
 
 	public int GetGameWidth() {
-		switch(selection)
-		{
-		case 0:
-			width=640;
-			break;
-		case 1:
-		case -1:
-			width=800;
-			break; 
-		case 2:
-			width=1024;
-			break;
-		}
-		
 		return width;
 	}
 
 	public int GetGameHeight() {
-		switch (selection) {
-		case 0:
-			height = 480;
-			break;
-		case 1:
-		case -1:
-			height = 600;
-			break;
-		case 2:
-			height = 768;
-			break;
-		}
-
 		return height;
 	}
 
@@ -138,18 +114,22 @@ public class Display extends Canvas implements Runnable  {
                 ticked = true;
                 tickCount++;
                 if (tickCount % 60 == 0) {
-					// System.out.println(frames + "fps");
+					System.out.println(frames + "fps");
 					fps = frames;
                     previousTime += 1000;
                     frames = 0;
                 }
             }
-            if (ticked) {
-                render(); //渲染呈现
-                frames++;
-            }
-            render();
-            frames++;
+			if (ticked) {
+//				render(); // 渲染呈现
+				renderMenu();
+				frames++;
+			}
+
+//				else {
+//				render();
+//				frames++;
+//			}
 
 			newX = InputHandler.MouseX;
 			if (newX > oldX) {
@@ -171,6 +151,27 @@ public class Display extends Canvas implements Runnable  {
     private void tick() {
 		game.tick(input.key);
     }
+
+	private void renderMenu() {
+		BufferStrategy bs = this.getBufferStrategy();
+		if (bs == null) {
+			createBufferStrategy(3);
+			return;
+		}
+		Graphics g = bs.getDrawGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, 800, 400);
+		try {
+			g.drawImage(ImageIO.read(Display.class.getResource("/menu_image.jpg")), 0, 0, 800, 400, null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		g.setColor(Color.white);
+		g.setFont(new Font("Consolas", 0, 30));
+		g.drawString("Play", 700, 90);
+		g.dispose();
+		bs.show();
+	}
 
     private void render() {
         BufferStrategy bs = this.getBufferStrategy();
@@ -197,7 +198,8 @@ public class Display extends Canvas implements Runnable  {
 
 
     public static void main(String[] args) {
-		new Launcher(0);
+		Display display = new Display();
+		new Launcher(0, display);
     }
 
 }

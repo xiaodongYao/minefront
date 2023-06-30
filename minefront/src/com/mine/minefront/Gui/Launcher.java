@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import com.mine.minefront.Configuration;
+import com.mine.minefront.Display;
 import com.mine.minefront.RunGame;
 
 public class Launcher extends JFrame {
@@ -19,25 +20,26 @@ public class Launcher extends JFrame {
 	protected JPanel window = new JPanel();
 	private JButton play, options, help, quit;
 	private Rectangle rplay, roptions, rhelp, rquit;
-
 	Configuration config = new Configuration();
 
-	private int width = 240;
-	private int height = 320;
+	private int width = 800;
+	private int height = 400;
 
 	protected int button_width = 80;
 	protected int button_height = 40;
 
-	public Launcher(int type) {
+	public Launcher(int type, Display display) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		setUndecorated(true);
 		setTitle("Minefront Launcher");
 		setSize(new Dimension(width, height));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		getContentPane().add(window);
+		// getContentPane().add(window);
+		add(display);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);
@@ -46,8 +48,9 @@ public class Launcher extends JFrame {
 		if (type == 0) {
 			drawButtons();
 		}
-
+		display.start();
 		repaint();
+
 	}
 
 	private void drawButtons() {
