@@ -8,8 +8,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import com.mine.minefront.Display;
-
 public class Options extends Launcher {
 
 	private static final long serialVersionUID = 1L;
@@ -47,7 +45,27 @@ public class Options extends Launcher {
 
 		OK.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Display.selection = resolution.getSelectedIndex();
+				int selection = resolution.getSelectedIndex();
+				int w = 0;
+				int h = 0;
+
+				switch (selection) {
+				case 0:
+					w = 640;
+					h = 480;
+					break;
+				case 1:
+				case -1:
+					w = 800;
+					h = 600;
+					break;
+				case 2:
+					w = 1024;
+					h = 768;
+					break;
+				}
+				config.saveConfiguration("width", w);
+				config.saveConfiguration("height", h);
 				dispose();
 				new Launcher(0);
 			}

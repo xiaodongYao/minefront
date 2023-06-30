@@ -8,7 +8,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
+import com.mine.minefront.Configuration;
 import com.mine.minefront.RunGame;
 
 public class Launcher extends JFrame {
@@ -18,6 +20,8 @@ public class Launcher extends JFrame {
 	private JButton play, options, help, quit;
 	private Rectangle rplay, roptions, rhelp, rquit;
 
+	Configuration config = new Configuration();
+
 	private int width = 240;
 	private int height = 320;
 
@@ -25,11 +29,11 @@ public class Launcher extends JFrame {
 	protected int button_height = 40;
 
 	public Launcher(int type) {
-//		try {
-//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		setTitle("Minefront Launcher");
 		setSize(new Dimension(width, height));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -43,6 +47,7 @@ public class Launcher extends JFrame {
 			drawButtons();
 		}
 
+		repaint();
 	}
 
 	private void drawButtons() {
@@ -68,6 +73,7 @@ public class Launcher extends JFrame {
 
 		play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				config.loadConfiguration("res/Settings/config.xml");
 				dispose();// 关闭当前窗口
 				new RunGame();
 			}
