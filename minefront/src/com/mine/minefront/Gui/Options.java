@@ -30,9 +30,9 @@ public class Options extends Launcher {
 	int h = 0;
 	public Options() {
 		super(1, new Display());
-		setTitle("Options - Minefront Launcher");
+		frame.setTitle("Options - Minefront Launcher");
 		setSize(new Dimension(width, height));
-		setLocationRelativeTo(null);
+		frame.setLocationRelativeTo(null);
 
 		drawButtons();
 	}
@@ -71,7 +71,7 @@ public class Options extends Launcher {
 
 		OK.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dispose();
+				frame.dispose();
 				new Launcher(0, new Display());
 				config.saveConfiguration("width", parseWidth());
 				config.saveConfiguration("height", parseHeight());

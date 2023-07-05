@@ -19,10 +19,19 @@ public class InputHandler implements KeyListener, FocusListener, MouseListener, 
 	public static int MouseX;
 	public static int MouseY;
 	public static int MouseButton;
+
+	public static int MouseDX; // d = drag
+	public static int MouseDY;
+
+	public static int MousePX;
+	public static int MousePY;
+	public static boolean dragged;
+
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		MouseDX = e.getX();
+		MouseDY = e.getY();
+		dragged = true;
 	}
 
 	@Override
@@ -34,20 +43,21 @@ public class InputHandler implements KeyListener, FocusListener, MouseListener, 
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		MouseButton = e.getButton();
 
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		MouseButton = e.getButton();
+		MousePX = e.getX();
+		MousePY = e.getY();
+		// dragged = true;
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		dragged = false;
+		MouseButton = 0;
 	}
 
 	@Override

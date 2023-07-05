@@ -8,9 +8,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import com.mine.minefront.Graphics.Screen;
 import com.mine.minefront.Gui.Launcher;
@@ -76,7 +73,7 @@ public class Display extends Canvas implements Runnable  {
         if (running)
             return;
         running = true;
-        thread = new Thread(this);
+		thread = new Thread(this, "game");
         thread.start();
 
         System.out.println("working....");
@@ -102,12 +99,13 @@ public class Display extends Canvas implements Runnable  {
         double secondsPerTick = 1 / 60.0;
         int tickCount = 0;
         boolean ticked = false;
+		requestFocus();
         while (running) {
             long currentTime = System.nanoTime();
             long passedTime = currentTime - previousTime;
             previousTime = currentTime; //更新当前时间
             unprocessedSeconds += passedTime / 1000000000.0;
-            requestFocus();
+
             while (unprocessedSeconds > secondsPerTick) {
                 tick();
                 unprocessedSeconds -= secondsPerTick;
@@ -119,13 +117,11 @@ public class Display extends Canvas implements Runnable  {
                     previousTime += 1000;
                     frames = 0;
                 }
+				if (ticked) {
+//    				render(); // 渲染呈现
+					frames++;
+				}
             }
-			if (ticked) {
-//				render(); // 渲染呈现
-				renderMenu();
-				frames++;
-			}
-
 //				else {
 //				render();
 //				frames++;
@@ -152,26 +148,7 @@ public class Display extends Canvas implements Runnable  {
 		game.tick(input.key);
     }
 
-	private void renderMenu() {
-		BufferStrategy bs = this.getBufferStrategy();
-		if (bs == null) {
-			createBufferStrategy(3);
-			return;
-		}
-		Graphics g = bs.getDrawGraphics();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, 800, 400);
-		try {
-			g.drawImage(ImageIO.read(Display.class.getResource("/menu_image.jpg")), 0, 0, 800, 400, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		g.setColor(Color.white);
-		g.setFont(new Font("Consolas", 0, 30));
-		g.drawString("Play", 700, 90);
-		g.dispose();
-		bs.show();
-	}
+
 
     private void render() {
         BufferStrategy bs = this.getBufferStrategy();
