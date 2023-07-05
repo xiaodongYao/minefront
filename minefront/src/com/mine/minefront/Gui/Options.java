@@ -7,12 +7,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.mine.minefront.Display;
+import com.mine.minefront.Configuration;
 
-public class Options extends Launcher {
+public class Options extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,16 +27,26 @@ public class Options extends Launcher {
 	private JLabel lwidth, lheight;
 
 	private Choice resolution = new Choice();
-
+	Configuration config = new Configuration();
 	int w = 0;
 	int h = 0;
-	public Options() {
-		super(1, new Display());
-		frame.setTitle("Options - Minefront Launcher");
-		setSize(new Dimension(width, height));
-		frame.setLocationRelativeTo(null);
+	private int button_width = 80;
+	private int button_height = 40;
+	JPanel window = new JPanel();
 
+	public Options() {
+
+		setTitle("Options - Minefront Launcher");
+		setSize(new Dimension(width, height));
+		add(window);
+		setLocationRelativeTo(null);
+		setResizable(false);
+		// setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+
+		window.setLayout(null);
 		drawButtons();
+		repaint();
 	}
 
 	private void drawButtons()
@@ -67,12 +79,12 @@ public class Options extends Launcher {
 		theight = new JTextField();
 		theight.setBounds(80, 180, 60, 20);
 		window.add(theight);
-		;
+
 
 		OK.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
-				new Launcher(0, new Display());
+				dispose();
+				// new Launcher(0);
 				config.saveConfiguration("width", parseWidth());
 				config.saveConfiguration("height", parseHeight());
 			}

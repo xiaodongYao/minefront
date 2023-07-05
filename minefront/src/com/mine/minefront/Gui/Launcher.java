@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import com.mine.minefront.Configuration;
-import com.mine.minefront.Display;
 import com.mine.minefront.RunGame;
 import com.mine.minefront.Input.InputHandler;
 
@@ -40,7 +39,7 @@ public class Launcher extends Canvas implements Runnable {
 	private boolean running;
 	JFrame frame = new JFrame();
 
-	public Launcher(int type, Display display) {
+	public Launcher(int type) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -66,7 +65,7 @@ public class Launcher extends Canvas implements Runnable {
 		addMouseMotionListener(input);
 
 		startMenu();
-		display.start();
+//		display.start();
 		frame.repaint();
 
 	}
@@ -86,7 +85,7 @@ public class Launcher extends Canvas implements Runnable {
 		thread.start();
 	}
 
-	private void stopMenu() {
+	public void stopMenu() {
 		if (!running)
 			return;
 		running = false;
@@ -132,7 +131,7 @@ public class Launcher extends Canvas implements Runnable {
 				g.drawImage(ImageIO.read(Launcher.class.getResource("/menu/options_on.png")), 641, 170, 130, 30, null);
 				g.drawImage(ImageIO.read(Launcher.class.getResource("/menu/arrow.png")), 641 + 130, 174, 20, 20, null);
 				if (InputHandler.MouseButton == 1) {
-
+					new Options();
 				}
 			} else {
 				g.drawImage(ImageIO.read(Launcher.class.getResource("/menu/options_off.png")), 641, 170, 130, 30, null);

@@ -30,7 +30,10 @@ public class RunGame {
 		frame.setVisible(true); // 可见性
 
 		game.start();
-		System.out.println("Running....");
+		stopMenuThread();
 	}
 
+	private void stopMenuThread() {
+		Display.getLauncherInstance().stopMenu();
+	}
 }

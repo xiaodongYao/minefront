@@ -41,8 +41,9 @@ public class Display extends Canvas implements Runnable  {
 	private int fps;
 
 	public static int MouseSpeed = 0;
-
 	public static int selection = 0;
+
+	private static Launcher launcher;
 
     public Display() {
 		Dimension size = new Dimension(GetGameWidth(), GetGameHeight());
@@ -60,6 +61,13 @@ public class Display extends Canvas implements Runnable  {
 		addMouseListener(input);
 		addMouseMotionListener(input);
     }
+
+	public static Launcher getLauncherInstance() {
+		if (launcher == null) {
+			launcher = new Launcher(0);
+		}
+		return launcher;
+	}
 
 	public int GetGameWidth() {
 		return width;
@@ -118,34 +126,30 @@ public class Display extends Canvas implements Runnable  {
                     frames = 0;
                 }
 				if (ticked) {
-//    				render(); // 渲染呈现
+					render(); // 渲染呈现
 					frames++;
 				}
             }
-//				else {
-//				render();
-//				frames++;
-//			}
 
-			newX = InputHandler.MouseX;
-			if (newX > oldX) {
-				Controller.turnRight = true;
-			}
-			if (newX < oldX) {
-				Controller.turnLeft = true;
-			}
-			if (newX == oldX) {
-				Controller.turnRight = false;
-				Controller.turnLeft = false;
-			}
-			MouseSpeed = Math.abs(newX - oldX);
-			oldX = newX;
         }
 
     }
 
     private void tick() {
 		game.tick(input.key);
+		newX = InputHandler.MouseX;
+		if (newX > oldX) {
+			Controller.turnRight = true;
+		}
+		if (newX < oldX) {
+			Controller.turnLeft = true;
+		}
+		if (newX == oldX) {
+			Controller.turnRight = false;
+			Controller.turnLeft = false;
+		}
+		MouseSpeed = Math.abs(newX - oldX);
+		oldX = newX;
     }
 
 
@@ -175,8 +179,7 @@ public class Display extends Canvas implements Runnable  {
 
 
     public static void main(String[] args) {
-		Display display = new Display();
-		new Launcher(0, display);
+		getLauncherInstance();
     }
 
 }
