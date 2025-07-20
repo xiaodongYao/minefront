@@ -1,5 +1,7 @@
 package com.mine.minefront.Graphics;
 
+import java.util.Random;
+
 import com.mine.minefront.Game;
 import com.mine.minefront.Input.Controller;
 import com.mine.minefront.level.Block;
@@ -11,13 +13,17 @@ public class Render3D extends Render {
 	public double[] zBufferWall;
 	public double renderDistance = 5000;
 	private double forward, right, up, cosine, sine, walking;
+	public static int spriteSheetWidth = 24;
+
+	Random random = new Random();
+
+	double h = 0.5;
 
 	public Render3D(int width, int height) {
 		super(width, height);
 		zBuffer = new double[width * height];
 		zBufferWall = new double[width];
 	}
-
 
 	public void floor(Game game) {
 
@@ -64,7 +70,6 @@ public class Render3D extends Render {
 				}
 			}
 
-
 			for (int x = 0; x < width; x++) {
 				double depth = (x - width / 2.0) / height;
 				depth *= z;
@@ -74,7 +79,7 @@ public class Render3D extends Render {
 				int ypix = (int) (yy + forward);
 				zBuffer[x + y * width] = z;
 				// pixels[x + y * width] = ((xPix & 15) * 16) | ((ypix & 15) * 16) << 8;
-				pixels[x + y * width] = Texture.floor.pixels[(xPix & 7) + (ypix & 7) * 16];
+				pixels[x + y * width] = Texture.floor.pixels[(xPix & 7) + (ypix & 7) * spriteSheetWidth];
 				if (z > 500) {
 					pixels[x + y * width] = 0;
 				}
@@ -125,6 +130,77 @@ public class Render3D extends Render {
 					if (south.solid) {
 						RenderWalls(xBlock, xBlock + 1, zBlock + 1, zBlock + 1, 0.5);
 					}
+
+				}
+			}
+		}
+
+		for (int xBlock = -size; xBlock <= size; ++xBlock) {
+			for (int zBlock = -size; zBlock <= size; ++zBlock) {
+				Block block = level.create(xBlock, zBlock);
+				for (int s = 0; s < block.sprites.size(); s++) {
+					Sprite sprite = block.sprites.get(s);
+					renderSprite(xBlock + sprite.x, sprite.y, zBlock + sprite.z, 0.5);
+				}
+			}
+		}
+	}
+
+	public void renderSprite(double x, double y, double z, double hOffset) {
+		double upCorrect = -0.125;
+		double rightCorrect = 0.0625;
+		double forwardCorrect = 0.0625;
+		double walkCorrect = 0.0625;
+
+		double xc = (x / 2 - right * rightCorrect) * 2 + 0.5;
+		double yc = (y / 2 - up * upCorrect) + walking * walkCorrect * 2 + hOffset;
+		double zc = (z / 2 - forward * forwardCorrect) * 2;
+
+		double rotX = xc * cosine - zc * sine;
+		double rotY = yc;
+		double rotZ = zc * cosine + xc * sine;
+
+		double xCentre = 400.0;
+		double yCentre = 300.0;
+
+		double xPixel = rotX / rotZ * height + xCentre;
+		double yPixel = rotY / rotZ * height + yCentre;
+
+		double xPixelL = xPixel - 32 / rotZ;
+		double xPixelR = xPixel + 32 / rotZ;
+
+		double yPixelL = yPixel - 32 / rotZ;
+		double yPixelR = yPixel + 32 / rotZ;
+
+		int xpl = (int) xPixelL;
+		int xpr = (int) xPixelR;
+		int ypl = (int) yPixelL;
+		int ypr = (int) yPixelR;
+
+		if (xpl < 0)
+			xpl = 0;
+		if (xpr > width)
+			xpr = width;
+		if (ypl < 0)
+			ypl = 0;
+		if (ypr > height)
+			ypr = height;
+
+		rotZ *= 8;
+
+		for (int yp = ypl; yp < ypr; yp++) {
+			double pixelRotationY = (yp - yPixelR) / (yPixelL - yPixelR);
+			int yTexture = (int) (8 * pixelRotationY);
+			for (int xp = xpl; xp < xpr; xp++) {
+				double pixelRotationX = (xp - xPixelR) / (xPixelL - xPixelR);
+				int xTexture = (int) (8 * pixelRotationX);
+				if (zBuffer[xp + yp * width] > rotZ) {
+					int col = Texture.floor.pixels[(xTexture & 7) + 16 + (yTexture & 7) * spriteSheetWidth];
+					if (col != 0xffff00ff) {
+						pixels[xp + yp * width] = col; // xTexture * 32 + yTexture * 32 * 256;//
+						zBuffer[xp + yp * width] = rotZ;
+					}
+
 				}
 			}
 		}
@@ -151,7 +227,7 @@ public class Render3D extends Render {
 		double yCornerTR = (-yHeight - (-up * upCorrect + walking * walkCorrect)) * 2;
 		double yCornerBR = (0.5 - yHeight - (-up * upCorrect + walking * walkCorrect)) * 2;
 		double rotRightSideZ = zcRight * cosine + xcRight * sine;
-		
+
 		double tex30 = 0;
 		double tex40 = 8;
 		double clip = 0.5;
@@ -204,7 +280,7 @@ public class Render3D extends Render {
 		for (int x = xPixelLeftInt; x < xPixelRightInt; ++x) {
 			double pixelRotation = (x - xPixelLeft) / (xPixelRight - xPixelLeft);
 			double zWall = tex1 + (tex2 - tex1) * pixelRotation;
-			
+
 			if (zBufferWall[x] > zWall) {
 				continue;
 			}
@@ -230,7 +306,7 @@ public class Render3D extends Render {
 				double pixelRotationY = (y - yPixelTop) / (yPixelButtom - yPixelTop);
 				int yTexture = (int) (8 * pixelRotationY);
 				// pixels[x + y * width] = xTexture * 100 + yTexture * 100 * 256; // 0x1B91E0;
-				pixels[x + y * width] = Texture.floor.pixels[(xTexture & 7) + 8 + (yTexture & 7) * 16];
+				pixels[x + y * width] = Texture.floor.pixels[(xTexture & 7) + 8 + (yTexture & 7) * spriteSheetWidth];
 				zBuffer[x + y * width] = 1 / (tex1 + (tex2 - tex1) * pixelRotation) * 8;
 			}
 
@@ -252,7 +328,7 @@ public class Render3D extends Render {
 			int r = (color >> 16) & 0xff;
 			int g = (color >> 8) & 0xff;
 			int b = (color) & 0xff;
-			
+
 			r = r * brightness / 255;
 			g = g * brightness / 255;
 			b = b * brightness / 255;

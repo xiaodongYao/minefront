@@ -15,18 +15,21 @@ public class Game {
 		level = new Level(20, 20);
 	}
 
-	public void tick(boolean[] key)
-	{
+	public void tick(boolean[] key) {
 		time++;
 
 		boolean forward = key[KeyEvent.VK_W];
 		boolean back = key[KeyEvent.VK_S];
 		boolean left = key[KeyEvent.VK_A];
 		boolean right = key[KeyEvent.VK_D];
+
+		boolean rleft = key[KeyEvent.VK_LEFT];
+		boolean rright = key[KeyEvent.VK_RIGHT];
+
 		boolean jump = key[KeyEvent.VK_SPACE];
 		boolean crouch = key[KeyEvent.VK_CONTROL];
 		boolean run = key[KeyEvent.VK_SHIFT];
 
-		controls.tick(forward, back, left, right, jump, crouch, run);
+		controls.tick(forward, back, left, right, rleft, rright, jump, crouch, run);
 	}
 }

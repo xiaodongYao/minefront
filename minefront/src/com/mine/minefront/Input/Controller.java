@@ -1,7 +1,5 @@
 package com.mine.minefront.Input;
 
-import com.mine.minefront.Display;
-
 public class Controller {
 
 	public double x, y, z, rotation, xa, za, rotationa;
@@ -12,8 +10,9 @@ public class Controller {
 	public static boolean crouchWalk = false;
 	public static boolean runWalk = false;
 
-	public void tick(boolean forward, boolean back, boolean left, boolean right, boolean jump, boolean crouch, boolean run) {
-		double rotationSpeed = 0.002 * Display.MouseSpeed;
+	public void tick(boolean forward, boolean back, boolean left, boolean right, boolean rleft, boolean rright, boolean jump, boolean crouch, boolean run) {
+		// double rotationSpeed = 0.002 * Display.MouseSpeed;
+		double rotationSpeed = 0.024;
 		double walkSpeed = 0.5;
 		double jumpHeight = 0.5;
 
@@ -41,25 +40,27 @@ public class Controller {
 			walk = true;
 		}
 
-		if (turnLeft) {
-			if (InputHandler.MouseButton == 3) {
-
-			} else {
-				rotationa -= rotationSpeed;
-				walk = true;
-			}
-
+		if (rleft) {
+			rotationa -= rotationSpeed;
 		}
 
-		if (turnRight) {
-			if (InputHandler.MouseButton == 3) {
-
-			} else {
-				rotationa += rotationSpeed;
-				walk = true;
-			}
-
+		if (rright) {
+			rotationa += rotationSpeed;
 		}
+
+		/*
+		 * if (turnLeft) { if (InputHandler.MouseButton == 3) {
+		 * 
+		 * } else { rotationa -= rotationSpeed; walk = true; }
+		 * 
+		 * }
+		 * 
+		 * if (turnRight) { if (InputHandler.MouseButton == 3) {
+		 * 
+		 * } else { rotationa += rotationSpeed; walk = true; }
+		 * 
+		 * }
+		 */
 
 		if (jump) {
 			y += jumpHeight;
@@ -91,7 +92,6 @@ public class Controller {
 		xa += (xMove * Math.cos(rotation) + zMove * Math.sin(rotation)) * walkSpeed;
 		za += (zMove * Math.cos(rotation) - xMove * Math.sin(rotation)) * walkSpeed;
 
-
 		x += xa;
 		y *= 0.9;
 		z += za;
@@ -99,10 +99,10 @@ public class Controller {
 		xa *= 0.1;
 		za *= 0.1;
 
-		 if (turnLeft || turnRight) {
+		if (rleft || rright) {
 			rotation += rotationa;
 			rotationa *= 0.4;
-		 }
+		}
 
 	}
 }
